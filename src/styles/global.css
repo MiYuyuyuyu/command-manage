@@ -40,11 +40,13 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html, body, #root {
   height: 100%;
   overflow: hidden;
+  touch-action: manipulation;
 }
 
 body {
@@ -54,6 +56,8 @@ body {
   color: var(--text-primary);
   background: var(--bg-primary);
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ===== App Layout ===== */
@@ -247,6 +251,11 @@ body {
   border: none;
   padding: 8px 0;
   flex: 1;
+  font-size: 16px; /* Prevent zoom on mobile */
+}
+
+.search-box .input::placeholder {
+  font-size: 14px;
 }
 
 .btn-clear {
@@ -265,10 +274,12 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text-primary);
-  font-size: 13px;
+  font-size: 16px; /* Prevent zoom on focus on mobile */
   font-family: var(--font-sans);
   outline: none;
   transition: border-color 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .input:focus {
@@ -913,4 +924,224 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border-light);
+}
+
+/* ===== Mobile Responsive ===== */
+@media screen and (max-width: 768px) {
+  /* Base adjustments */
+  body {
+    font-size: 14px;
+  }
+
+  /* Header - stack vertically on mobile */
+  .header {
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px 14px;
+  }
+
+  .header-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .app-title {
+    font-size: 16px;
+  }
+
+  .update-badge {
+    display: none;
+  }
+
+  .header-metrics {
+    width: 100%;
+    justify-content: space-around;
+    gap: 10px;
+  }
+
+  .metric-bar {
+    width: 50px;
+  }
+
+  /* Tab Bar - scrollable on mobile */
+  .tab-bar {
+    padding: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .tab-bar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab {
+    padding: 12px 16px;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* Content */
+  .content {
+    padding: 12px 10px;
+  }
+
+  /* List Toolbar - stack on mobile */
+  .list-toolbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .search-box {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .spawn-toggle {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Process Table - enable horizontal scroll with better UX */
+  .process-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .process-table {
+    min-width: 700px;
+  }
+
+  .process-table th,
+  .process-table td {
+    padding: 12px 10px;
+  }
+
+  .col-actions {
+    width: 160px;
+  }
+
+  /* Make buttons larger for touch */
+  .btn {
+    padding: 10px 16px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+
+  .btn-xs {
+    padding: 8px 12px;
+    font-size: 12px;
+    min-height: 36px;
+  }
+
+  /* Detail Panel - full screen on mobile */
+  .detail-overlay {
+    align-items: flex-end;
+  }
+
+  .detail-panel {
+    width: 100%;
+    max-height: 90vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* Process Tree */
+  .tree-toolbar {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .tree-toolbar .search-box {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .tree-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .tree-actions .btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .tree-content {
+    max-height: none;
+    max-height: calc(100vh - 300px);
+  }
+
+  /* System Info */
+  .sysinfo-cards {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .sysinfo-card {
+    padding: 16px;
+  }
+
+  .sysinfo-card-value {
+    font-size: 24px;
+  }
+
+  /* Spawn Form - full width dropdown on mobile */
+  .spawn-body {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-width: auto;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    max-height: 80vh;
+    overflow: auto;
+  }
+
+  .spawn-fields {
+    flex-direction: column;
+  }
+
+  .spawn-fields .input {
+    width: 100%;
+    min-width: auto;
+  }
+
+  /* Touch feedback */
+  .tab:active,
+  .btn:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+
+  /* Better scrollbar on mobile */
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+}
+
+/* Extra small screens */
+@media screen and (max-width: 380px) {
+  .header-metrics {
+    flex-wrap: wrap;
+  }
+
+  .metric {
+    min-width: 80px;
+  }
+
+  .metric-label {
+    display: none;
+  }
+
+  .sysinfo-card-value {
+    font-size: 20px;
+  }
 }
