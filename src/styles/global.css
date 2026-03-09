@@ -927,7 +927,25 @@ body {
 }
 
 /* ===== Mobile Responsive ===== */
+
+/* Desktop/Mobile visibility helpers */
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
+}
+
 @media screen and (max-width: 768px) {
+  .mobile-only {
+    display: block;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
   /* Base adjustments */
   body {
     font-size: 14px;
@@ -1002,30 +1020,17 @@ body {
     justify-content: center;
   }
 
-  /* Process Table - enable horizontal scroll with better UX */
-  .process-table-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .process-table {
-    min-width: 700px;
-  }
-
-  .process-table th,
-  .process-table td {
-    padding: 12px 10px;
-  }
-
-  .col-actions {
-    width: 160px;
-  }
-
   /* Make buttons larger for touch */
   .btn {
     padding: 10px 16px;
     font-size: 14px;
     min-height: 44px;
+  }
+
+  .btn-sm {
+    padding: 8px 12px;
+    font-size: 13px;
+    min-height: 40px;
   }
 
   .btn-xs {
@@ -1144,4 +1149,139 @@ body {
   .sysinfo-card-value {
     font-size: 20px;
   }
+}
+
+/* ===== Mobile Process Cards ===== */
+.process-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.process-sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sort-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.sort-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: var(--font-sans);
+}
+
+.sort-btn.active {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-accent-dim);
+}
+
+.process-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.process-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.process-card:active {
+  background: var(--bg-hover);
+  border-color: var(--border-light);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.card-path {
+  font-size: 11px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 10px;
+}
+
+.card-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.card-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 10px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.stat-value {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.stat-value.pid {
+  color: var(--color-accent);
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.card-actions .btn {
+  flex: 1;
+  justify-content: center;
 }

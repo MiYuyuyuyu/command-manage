@@ -23,6 +23,16 @@ pub fn process_to_info(process: &Process, _system: &System) -> ProcessInfo {
     }
 }
 
+fn get_cpu_count(system: &System) -> usize {
+    let count = system.cpus().len();
+    if count > 0 {
+        return count;
+    }
+    std::thread::available_parallelism()
+        .map(|p| p.get())
+        .unwrap_or(1)
+}
+
 pub fn collect_system_info() -> SystemInfo {
     let mut system = System::new_all();
     system.refresh_all();
@@ -32,7 +42,7 @@ pub fn collect_system_info() -> SystemInfo {
         used_memory: system.used_memory(),
         total_swap: system.total_swap(),
         used_swap: system.used_swap(),
-        cpu_count: system.cpus().len(),
+        cpu_count: get_cpu_count(&system),
         os_name: System::name().unwrap_or_default(),
         os_version: System::os_version().unwrap_or_default(),
         host_name: System::host_name().unwrap_or_default(),

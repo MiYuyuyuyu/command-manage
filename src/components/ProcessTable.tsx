@@ -61,7 +61,8 @@ function ProcessTable({
     return sortDir === 'asc' ? ' ▲' : ' ▼';
   };
 
-  const handleKillClick = (pid: number) => {
+  const handleKillClick = (pid: number, e: React.MouseEvent) => {
+    e.stopPropagation();
     if (confirmKill === pid) {
       onKill(pid);
       setConfirmKill(null);
@@ -79,79 +80,163 @@ function ProcessTable({
   };
 
   return (
-    <div className="process-table-wrap">
-      <table className="process-table">
-        <thead>
-          <tr>
-            <th className="col-pid sortable" onClick={() => handleSort('pid')}>
-              PID{getSortIcon('pid')}
-            </th>
-            <th className="col-name sortable" onClick={() => handleSort('name')}>
-              名称{getSortIcon('name')}
-            </th>
-            <th className="col-path">路径</th>
-            <th className="col-status sortable" onClick={() => handleSort('status')}>
-              状态{getSortIcon('status')}
-            </th>
-            <th className="col-cpu sortable" onClick={() => handleSort('cpu_usage')}>
-              CPU{getSortIcon('cpu_usage')}
-            </th>
-            <th className="col-mem sortable" onClick={() => handleSort('memory')}>
-              内存{getSortIcon('memory')}
-            </th>
-            <th className="col-uptime">运行时间</th>
-            <th className="col-actions">操作</th>
-          </tr>
-        </thead>
-        <tbody>
+    <>
+      {/* Desktop Table View */}
+      <div className="process-table-wrap desktop-only">
+        <table className="process-table">
+          <thead>
+            <tr>
+              <th className="col-pid sortable" onClick={() => handleSort('pid')}>
+                PID{getSortIcon('pid')}
+              </th>
+              <th className="col-name sortable" onClick={() => handleSort('name')}>
+                名称{getSortIcon('name')}
+              </th>
+              <th className="col-path">路径</th>
+              <th className="col-status sortable" onClick={() => handleSort('status')}>
+                状态{getSortIcon('status')}
+              </th>
+              <th className="col-cpu sortable" onClick={() => handleSort('cpu_usage')}>
+                CPU{getSortIcon('cpu_usage')}
+              </th>
+              <th className="col-mem sortable" onClick={() => handleSort('memory')}>
+                内存{getSortIcon('memory')}
+              </th>
+              <th className="col-uptime">运行时间</th>
+              <th className="col-actions">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sorted.map((p) => (
+              <tr key={p.pid} onClick={() => onSelect(p)} className="process-row">
+                <td className="cell-pid">{p.pid}</td>
+                <td className="cell-name">{p.name}</td>
+                <td className="cell-path" title={p.exe}>{p.exe || '-'}</td>
+                <td>
+                  <span className={`badge badge-${getStatusClass(p.status)}`}>
+                    {getStatusLabel(p.status)}
+                  </span>
+                </td>
+                <td>
+                  <span className="cell-cpu" style={{ color: getCpuColor(p.cpu_usage) }}>
+                    {p.cpu_usage.toFixed(1)}%
+                  </span>
+                </td>
+                <td className="cell-mem">{formatMemory(p.memory)}</td>
+                <td className="cell-uptime">{p.start_time > 0 ? formatUptime(p.start_time) : '-'}</td>
+                <td className="cell-actions" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    className={`btn btn-xs ${confirmKill === p.pid ? 'btn-danger-solid' : 'btn-danger'}`}
+                    onClick={(e) => handleKillClick(p.pid, e)}
+                    title={confirmKill === p.pid ? '再次点击确认终止' : '终止进程'}
+                  >
+                    {confirmKill === p.pid ? '确认?' : '终止'}
+                  </button>
+                  <button
+                    className="btn btn-xs btn-ghost"
+                    onClick={(e) => { e.stopPropagation(); onPriorityDown(p.pid); }}
+                    title="提高优先级"
+                  >
+                    ▲ 优先
+                  </button>
+                  <button
+                    className="btn btn-xs btn-ghost"
+                    onClick={(e) => { e.stopPropagation(); onPriorityUp(p.pid); }}
+                    title="降低优先级"
+                  >
+                    ▼ 降级
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {sorted.length === 0 && (
+          <div className="empty-state">没有匹配的进程</div>
+        )}
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="process-cards mobile-only">
+        <div className="process-sort-bar">
+          <span className="sort-label">排序:</span>
+          <button
+            className={`sort-btn ${sortField === 'name' ? 'active' : ''}`}
+            onClick={() => handleSort('name')}
+          >
+            名称{sortField === 'name' && (sortDir === 'asc' ? '↑' : '↓')}
+          </button>
+          <button
+            className={`sort-btn ${sortField === 'cpu_usage' ? 'active' : ''}`}
+            onClick={() => handleSort('cpu_usage')}
+          >
+            CPU{sortField === 'cpu_usage' && (sortDir === 'asc' ? '↑' : '↓')}
+          </button>
+          <button
+            className={`sort-btn ${sortField === 'memory' ? 'active' : ''}`}
+            onClick={() => handleSort('memory')}
+          >
+            内存{sortField === 'memory' && (sortDir === 'asc' ? '↑' : '↓')}
+          </button>
+        </div>
+        <div className="process-card-list">
           {sorted.map((p) => (
-            <tr key={p.pid} onClick={() => onSelect(p)} className="process-row">
-              <td className="cell-pid">{p.pid}</td>
-              <td className="cell-name">{p.name}</td>
-              <td className="cell-path" title={p.exe}>{p.exe || '-'}</td>
-              <td>
-                <span className={`badge badge-${getStatusClass(p.status)}`}>
+            <div key={p.pid} className="process-card" onClick={() => onSelect(p)}>
+              <div className="card-header">
+                <span className="card-name">{p.name}</span>
+                <span className={`badge badge-sm badge-${getStatusClass(p.status)}`}>
                   {getStatusLabel(p.status)}
                 </span>
-              </td>
-              <td>
-                <span className="cell-cpu" style={{ color: getCpuColor(p.cpu_usage) }}>
-                  {p.cpu_usage.toFixed(1)}%
-                </span>
-              </td>
-              <td className="cell-mem">{formatMemory(p.memory)}</td>
-              <td className="cell-uptime">{p.start_time > 0 ? formatUptime(p.start_time) : '-'}</td>
-              <td className="cell-actions" onClick={(e) => e.stopPropagation()}>
+              </div>
+              <div className="card-path">{p.exe || '-'}</div>
+              <div className="card-stats">
+                <div className="card-stat">
+                  <span className="stat-label">PID</span>
+                  <span className="stat-value pid">{p.pid}</span>
+                </div>
+                <div className="card-stat">
+                  <span className="stat-label">CPU</span>
+                  <span className="stat-value" style={{ color: getCpuColor(p.cpu_usage) }}>
+                    {p.cpu_usage.toFixed(1)}%
+                  </span>
+                </div>
+                <div className="card-stat">
+                  <span className="stat-label">内存</span>
+                  <span className="stat-value">{formatMemory(p.memory)}</span>
+                </div>
+                <div className="card-stat">
+                  <span className="stat-label">运行</span>
+                  <span className="stat-value">{p.start_time > 0 ? formatUptime(p.start_time) : '-'}</span>
+                </div>
+              </div>
+              <div className="card-actions">
                 <button
-                  className={`btn btn-xs ${confirmKill === p.pid ? 'btn-danger-solid' : 'btn-danger'}`}
-                  onClick={() => handleKillClick(p.pid)}
-                  title={confirmKill === p.pid ? '再次点击确认终止' : '终止进程'}
+                  className={`btn btn-sm ${confirmKill === p.pid ? 'btn-danger-solid' : 'btn-danger'}`}
+                  onClick={(e) => handleKillClick(p.pid, e)}
                 >
                   {confirmKill === p.pid ? '确认?' : '终止'}
                 </button>
                 <button
-                  className="btn btn-xs btn-ghost"
-                  onClick={() => onPriorityDown(p.pid)}
-                  title="提高优先级"
+                  className="btn btn-sm btn-ghost"
+                  onClick={(e) => { e.stopPropagation(); onPriorityDown(p.pid); }}
                 >
                   ▲ 优先
                 </button>
                 <button
-                  className="btn btn-xs btn-ghost"
-                  onClick={() => onPriorityUp(p.pid)}
-                  title="降低优先级"
+                  className="btn btn-sm btn-ghost"
+                  onClick={(e) => { e.stopPropagation(); onPriorityUp(p.pid); }}
                 >
                   ▼ 降级
                 </button>
-              </td>
-            </tr>
+              </div>
+            </div>
           ))}
-        </tbody>
-      </table>
-      {sorted.length === 0 && (
-        <div className="empty-state">没有匹配的进程</div>
-      )}
-    </div>
+        </div>
+        {sorted.length === 0 && (
+          <div className="empty-state">没有匹配的进程</div>
+        )}
+      </div>
+    </>
   );
 }
 
