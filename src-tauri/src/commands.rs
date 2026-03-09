@@ -39,7 +39,9 @@ pub fn kill_process(pid: u32) -> Result<bool, String> {
 
 #[tauri::command]
 pub fn list_processes() -> Vec<ProcessInfo> {
-    let system = System::new_all();
+    let mut system = System::new_all();
+    std::thread::sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL);
+    system.refresh_all();
     system
         .processes()
         .iter()
@@ -49,7 +51,9 @@ pub fn list_processes() -> Vec<ProcessInfo> {
 
 #[tauri::command]
 pub fn get_process_info(pid: u32) -> Result<ProcessInfo, String> {
-    let system = System::new_all();
+    let mut system = System::new_all();
+    std::thread::sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL);
+    system.refresh_all();
     system
         .process(Pid::from_u32(pid))
         .map(|p| sysinfo_utils::process_to_info(p, &system))
@@ -58,7 +62,9 @@ pub fn get_process_info(pid: u32) -> Result<ProcessInfo, String> {
 
 #[tauri::command]
 pub fn get_process_tree() -> Vec<ProcessTreeNode> {
-    let system = System::new_all();
+    let mut system = System::new_all();
+    std::thread::sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL);
+    system.refresh_all();
     let processes: HashMap<u32, ProcessInfo> = system
         .processes()
         .iter()

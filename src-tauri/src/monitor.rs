@@ -11,8 +11,9 @@ static RUNNING: AtomicBool = AtomicBool::new(false);
 
 fn start_update_loop(app_handle: AppHandle) {
     thread::spawn(move || {
+        let mut system = System::new_all();
         while RUNNING.load(Ordering::SeqCst) {
-            let mut system = System::new_all();
+            thread::sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL);
             system.refresh_all();
 
             let processes: Vec<ProcessInfo> = system
@@ -29,7 +30,7 @@ fn start_update_loop(app_handle: AppHandle) {
             };
 
             let _ = app_handle.emit("process-update", update);
-            thread::sleep(Duration::from_secs(2));
+            thread::sleep(Duration::from_millis(1800));
         }
     });
 }
